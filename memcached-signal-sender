@@ -3,11 +3,12 @@
 # The container where we want to mimic resource contention issues.
 container_name="memcached-inconsistency-debugging-memcached-1-1"
 
-# Send the continue signal at the end if we cancel the script early.
+# Send the continue/start signal at the end if we cancel the script early.
 send_continue_and_exit() {
-    docker kill --signal=SIGCONT $container_name
+    # docker kill --signal=SIGCONT $container_name
+    docker start $container_name
 
-    echo "Final continue signal sent to $container_name. Exiting..."
+    echo "Final start signal sent to $container_name. Exiting..."
     exit 0
 }
 
@@ -15,9 +16,14 @@ trap send_continue_and_exit SIGINT
 
 for ((i=1; i<=10000; i++))
 do
-    docker kill --signal=SIGSTOP $container_name
+    # docker kill --signal=SIGSTOP $container_name
     # sleep 2
-    docker kill --signal=SIGCONT $container_name
+    # docker kill --signal=SIGCONT $container_name
+
+    docker kill --signal=SIGKILL $container_name
+    sleep 10
+    docker start $container_name
+    sleep 10
 done
 
 echo "All iterations completed."

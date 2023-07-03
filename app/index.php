@@ -29,7 +29,9 @@ class Memcached_Testing {
 
 		if ( empty( $value ) ) {
 			if ( Memcached::RES_NOTFOUND !== $this->mc->getResultCode() ) {
-				error_log( 'GET canary result code: ' . $this->mc->getResultCode() . '. Value: ' . print_r( $value, true ) );
+				if ( false !== $value ) {
+					error_log( 'GET canary result code: ' . $this->mc->getResultCode() . '. Value: ' . print_r( $value, true ) . '. Type: ' . gettype( $value ) );
+				}
 			}
 
 			return [];
@@ -37,7 +39,7 @@ class Memcached_Testing {
 
 		// This memcached value should only ever be an an array of keys that have values of only "true".
 		if ( [ true ] !== array_unique( array_values( $value ) ) ) {
-			trigger_error( 'An invalid value was found in the cache key: ' . print_r( $value, true ), E_USER_ERROR );
+			trigger_error( 'ERROR!!!!!! An invalid value was found in the cache key: ' . print_r( $value, true ), E_USER_WARNING );
 			die( 'Ruh roh' );
 		}
 
@@ -47,8 +49,8 @@ class Memcached_Testing {
 	function set( $key, $value ) {
 		$result = $this->mc->set( $key, $value, 0 );
 
-		if ( ! $result ) {
-			trigger_error( 'Unable to set key: ' . $key, E_USER_WARNING );
+		if ( ! $result && $key === self::CANARY_KEY && $this->mc->getResultCode() !== 47 ) {
+			trigger_error( 'Unable to set key: ' . $key . ' ' . $this->mc->getResultCode(), E_USER_WARNING );
 		}
 	}
 
@@ -72,6 +74,7 @@ $multiGetKeys = array_map( fn( $n ) => 'random-' . $n, range( 1, 1000 ) );
 // Run the stuffs
 $max = 100;
 for ( $i = 0; $i <= $max; $i++ ) {
+	// The first thing a request sends for.
 	$canary_value = $memcached->get_and_validate_canary();
 
 	// A chunky getMulti to stress out MC a little maybe?
@@ -92,6 +95,9 @@ for ( $i = 0; $i <= $max; $i++ ) {
 	if ( count( $canary_value ) > 1000 ) {
 		$memcached->delete( $memcached::CANARY_KEY );
 	}
+
+	// The last thing a request sends for
+	$memcached->get( 'random-' . $i );
 }
 
 echo "All Done";

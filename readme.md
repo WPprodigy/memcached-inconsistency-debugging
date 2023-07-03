@@ -13,3 +13,4 @@ The following error codes are returned from `Memcached::getResultCode()`:
 
 - When the server has been turned off: 47 = MEMCACHED_SERVER_TEMPORARILY_DISABLED
 - When the server has been SIGSTOP'd: 31 = MEMCACHED_TIMEOUT
+- Sometimes after the server has been turned off (presumably when it's a fresh php fpm child): 03 = MEMCACHED_CONNECTION_FAILURE
