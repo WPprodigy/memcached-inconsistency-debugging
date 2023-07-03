@@ -1,0 +1,24 @@
+#!/bin/bash
+
+url="http://localhost:8081/index.php"
+threads=5
+iterations=1000
+
+send_requests() {
+    for ((i=1; i<=iterations; i++))
+    do
+        echo "Sending request $i from thread $1..."
+        curl -sS $url >/dev/null
+        # sleep 1
+    done
+    echo "Thread $1 completed."
+}
+
+for ((t=1; t<=threads; t++))
+do
+    send_requests $t &
+done
+
+wait
+
+echo "All threads completed."

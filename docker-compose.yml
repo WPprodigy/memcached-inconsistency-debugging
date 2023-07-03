@@ -1,0 +1,39 @@
+version: "3"
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: conf/nginx/Dockerfile
+    ports:
+      - "8081:80"
+    networks:
+      - internal
+    volumes:
+      - ./app/:/var/www/html/
+      - ./logs/nginx:/var/log/nginx/
+  php:
+    build:
+      context: .
+      dockerfile: conf/php/Dockerfile
+    networks:
+      - internal
+    volumes:
+      - ./app/:/var/www/html/
+      - ./logs/php/:/var/log/fpm-php.www.log/
+      - ./conf/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./conf/php/local-fpm.conf:/usr/local/etc/php-fpm.d/zzz-local-fpm.conf
+  memcached-1:
+    image: memcached:1.6.17-alpine
+    ports:
+      - "11212:11211"
+    networks:
+      - internal
+  memcached-2:
+    image: memcached:1.6.17-alpine
+    ports:
+      - "11213:11211"
+    networks:
+      - internal
+networks:
+  internal:
+    driver: bridge
