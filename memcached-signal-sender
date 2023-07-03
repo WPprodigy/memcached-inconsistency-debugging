@@ -16,7 +16,7 @@ trap send_continue_and_exit SIGINT
 for ((i=1; i<=10000; i++))
 do
     docker kill --signal=SIGSTOP $container_name
-    sleep 1
+    # sleep 2
     docker kill --signal=SIGCONT $container_name
 done
 

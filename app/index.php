@@ -56,6 +56,10 @@ class Memcached_Testing {
 		return $this->mc->get( $key );
 	}
 
+	function getMulti( $keys ) {
+		return $this->mc->getMulti( $keys );
+	}
+
 	function delete( $key ) {
 		return $this->mc->delete( $key );
 	}
@@ -63,10 +67,15 @@ class Memcached_Testing {
 
 $memcached = new Memcached_Testing();
 
+$multiGetKeys = array_map( fn( $n ) => 'random-' . $n, range( 1, 1000 ) );
+
 // Run the stuffs
-$max = 50;
+$max = 100;
 for ( $i = 0; $i <= $max; $i++ ) {
 	$canary_value = $memcached->get_and_validate_canary();
+
+	// A chunky getMulti to stress out MC a little maybe?
+	$memcached->getMulti( $multiGetKeys );
 
 	// Add some other random noise.
 	$memcached->set( 'random-' . $i, [ 'something' => 'else #' . mt_rand( 0, 1000 ) ] );
