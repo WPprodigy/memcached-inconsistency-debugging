@@ -8,3 +8,5 @@ Like https://github.com/WPprodigy/memcache-inconsistency-debugging, but with a n
 4) View the PHP logs error logs and see if any anomalies occur.
 
 Issue: https://github.com/php-memcached-dev/php-memcached/issues/531
+
+Updating libmemcached to 1.1.4 in conf/php/Dockerfile resolves the issue.

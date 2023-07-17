@@ -24,10 +24,10 @@ for ((i=1; i<=2000; i++))
 do
     random_container=$(select_random_container)
 
-    docker kill --signal=SIGHUP $random_container
-    sleep 2
+    docker kill --signal=SIGSTOP $random_container
+    sleep 7
     docker kill --signal=SIGCONT $random_container
-    sleep 1
+    sleep 3
 done
 
 echo "All iterations completed."

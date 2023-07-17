@@ -13,11 +13,11 @@ class Memcached_Testing {
 			// NOTE: Make sure to change the persistent ID if changing these options while testing.
 			$mc->setOptions( [
 				// What we have in production
-				// Memcached::OPT_CONNECT_TIMEOUT => 1000,
-				// Memcached::OPT_TCP_NODELAY     => true,
+				Memcached::OPT_CONNECT_TIMEOUT => 1000,
+				Memcached::OPT_TCP_NODELAY     => true,
 
 				// This one appears required to replicate the bug:
-				Memcached::OPT_POLL_TIMEOUT => 20, // milliseconds (default 1000)
+				// Memcached::OPT_POLL_TIMEOUT => 20, // milliseconds (default 1000)
 
 				// These all seem to increase the likelihood, but are not technically required:
 				// Memcached::OPT_RETRY_TIMEOUT   => 60, // seconds (default 0)
