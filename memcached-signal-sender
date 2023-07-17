@@ -1,29 +1,33 @@
 #!/bin/bash
 
 # The container where we want to mimic resource contention issues.
-container_name="memcached-inconsistency-debugging-memcached-1-1"
+container_one="memcached-inconsistency-debugging-memcached-1-1"
+container_two="memcached-inconsistency-debugging-memcached-2-1"
 
-# Send the continue/start signal at the end if we cancel the script early.
+select_random_container() {
+    local containers=("$container_one" "$container_two")
+    local random_index=$((RANDOM % 2))
+    echo "${containers[random_index]}"
+}
+
+# Send the continue signal at the end if we cancel the script early.
 send_continue_and_exit() {
-    # docker kill --signal=SIGCONT $container_name
-    docker start $container_name
-
-    echo "Final start signal sent to $container_name. Exiting..."
+    docker kill --signal=SIGCONT $container_one
+    docker kill --signal=SIGCONT $container_two
+    echo "Final continue signal sent to $container_one and $container_two. Exiting..."
     exit 0
 }
 
 trap send_continue_and_exit SIGINT
 
-for ((i=1; i<=10000; i++))
+for ((i=1; i<=2000; i++))
 do
-    # docker kill --signal=SIGSTOP $container_name
-    # sleep 2
-    # docker kill --signal=SIGCONT $container_name
+    random_container=$(select_random_container)
 
-    docker kill --signal=SIGKILL $container_name
-    sleep 10
-    docker start $container_name
-    sleep 10
+    docker kill --signal=SIGHUP $random_container
+    sleep 2
+    docker kill --signal=SIGCONT $random_container
+    sleep 1
 done
 
 echo "All iterations completed."

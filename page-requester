@@ -1,24 +1,46 @@
 #!/bin/bash
 
 url="http://localhost:8081/index.php"
+query_arg="?set_keys"
 threads=5
-iterations=1000
+iterations=5000
 
+# Function to send requests
 send_requests() {
+    local thread_number=$1
     for ((i=1; i<=iterations; i++))
     do
-        echo "Sending request $i from thread $1..."
+        echo "Sending request $i from thread $thread_number..."
         curl -sS $url >/dev/null
         # sleep 1
     done
-    echo "Thread $1 completed."
+    echo "Thread $thread_number completed."
 }
 
+echo "Sending one request with query argument...${url}${query_arg}"
+curl -sS "${url}${query_arg}" >/dev/null
+
+# Run the send_requests function in background threads
 for ((t=1; t<=threads; t++))
 do
     send_requests $t &
+    pids[$t]=$!
 done
 
+# Function to handle SIGINT signal (Ctrl+C)
+handle_sigint() {
+    echo "SIGINT signal received. Canceling all threads..."
+    for ((t=1; t<=threads; t++))
+    do
+        kill ${pids[$t]} >/dev/null 2>&1
+    done
+    exit 0
+}
+
+# Register the SIGINT signal handler
+trap handle_sigint SIGINT
+
+# Wait for all threads to finish
 wait
 
 echo "All threads completed."
