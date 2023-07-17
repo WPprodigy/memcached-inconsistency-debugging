@@ -11,7 +11,7 @@ send_requests() {
     for ((i=1; i<=iterations; i++))
     do
         echo "Sending request $i from thread $thread_number..."
-        curl -sS $url >/dev/null
+        curl -sS "$url?thread=$thread_number&iteration=$i" >/dev/null
         # sleep 1
     done
     echo "Thread $thread_number completed."

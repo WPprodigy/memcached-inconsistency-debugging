@@ -35,7 +35,8 @@ class Memcached_Testing {
 		$value = $this->mc->get( $key );
 
 		if ( $value !== false && $key !== $value ) {
-			trigger_error( 'Uh oh! An invalid value was returned from the cache key (' . $key . '): ' . print_r( $value, true ), E_USER_WARNING );
+			$request_info = isset( $_GET['thread'], $_GET['iteration'] ) ? " Thread: #{$_GET['thread']}. Iteration: #{$_GET['iteration']}" : '';
+			trigger_error( "Invalid value returned. Requested key: $key. Received value: $value.$request_info", E_USER_WARNING );
 		}
 
 		return $value;
@@ -53,7 +54,7 @@ if ( isset( $_GET['set_keys'] ) ) {
 }
 
 // Run the stuffs
-$max = isset( $_GET['set_keys'] ) ? 50 : mt_rand( 1, 50 );
+$max = 1000;
 for ( $i = 0; $i <= $max; $i++ ) {
 	$loop_key = 'loop_' . $i;
 
